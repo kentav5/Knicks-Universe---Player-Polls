@@ -399,6 +399,126 @@
       setInterval(reportHeight, 1000);
     })();
   </script>
+<script>
+  // ========= CONFIGURE THIS ==============
+  // 1) Put your real Google Sheet ID here
+  const SHEET_ID = "YOUR_SHEET_ID_HERE";
+
+  // 2) If your sheet (first sheet, gid=0) has these column headers:
+  //    Player | Rating
+  //    then leave this as is:
+  const PLAYER_COL_NAME = "Player";
+  const RATING_COL_NAME = "Rating";
+  // =======================================
+
+  // Map sheet "Player" values to the names in your HTML cards.
+  // LEFT side: exactly what’s in your Google Sheet "Player" column
+  // RIGHT side: the text in .ku-name in your HTML
+  const PLAYER_NAME_MAP = {
+    "Jalen Brunson": "Jalen Brunson (PG)",
+    "Karl-Anthony Towns": "Karl-Anthony Towns (C/PF)",
+    "OG Anunoby": "OG Anunoby (SF)",
+    "Mikal Bridges": "Mikal Bridges (SG/SF)",
+    "Josh Hart": "Josh Hart (SG/SF)",
+    "Mitchell Robinson": "Mitchell Robinson (C)",
+    "Jordan Clarkson": "Jordan Clarkson (PG/SG)",
+    "Guerschon Yabusele": "Guerschon Yabusele (F)",
+    "Tyler Kolek": "Tyler Kolek (PG)",
+    "Pacome Dadiet": "Pacôme Dadiet (SF)",
+    "Pacôme Dadiet": "Pacôme Dadiet (SF)",        // just in case accent missing
+    "Ariel Hukporti": "Ariel Hukporti (C)",
+    "Landry Shamet": "Landry Shamet (G)"
+  };
+
+  // Build the public JSON URL
+  const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+  // Helper: find a card DOM node by its display name
+  function findCardByName(displayName) {
+    const cards = document.querySelectorAll(".ku-card");
+    for (const card of cards) {
+      const nameEl = card.querySelector(".ku-name");
+      if (!nameEl) continue;
+      const text = nameEl.textContent.trim();
+      if (text === displayName) {
+        return card;
+      }
+    }
+    return null;
+  }
+
+  // Helper: set avg on card
+  function setAvgOnCard(displayName, avg) {
+    const card = findCardByName(displayName);
+    if (!card) return;
+    const avgEl = card.querySelector(".ku-avg");
+    if (!avgEl) return;
+    avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
+  }
+
+  // Fetch + parse the Google "gviz" JSON
+  async function loadAverages() {
+    try {
+      const resp = await fetch(SHEET_URL);
+      const text = await resp.text();
+
+      // gviz wraps JSON in a JS function, so we strip it
+      const jsonStr = text.replace(/(^.*setResponse\(|\);?\s*$)/g, "");
+      const data = JSON.parse(jsonStr);
+
+      // Find column indexes for Player and Rating
+      const cols = data.table.cols;
+      let playerColIndex = -1;
+      let ratingColIndex = -1;
+      cols.forEach((col, idx) => {
+        if (col.label === PLAYER_COL_NAME) playerColIndex = idx;
+        if (col.label === RATING_COL_NAME) ratingColIndex = idx;
+      });
+
+      if (playerColIndex === -1 || ratingColIndex === -1) {
+        console.warn("Could not find Player/Rating columns. Check your sheet headers.");
+        return;
+      }
+
+      // Aggregate
+      const totals = {};   // { "Jalen Brunson": sum }
+      const counts = {};   // { "Jalen Brunson": count }
+
+      data.table.rows.forEach(row => {
+        if (!row.c) return;
+        const playerCell = row.c[playerColIndex];
+        const ratingCell = row.c[ratingColIndex];
+        if (!playerCell || !ratingCell) return;
+
+        const playerRaw = playerCell.v;
+        const ratingRaw = ratingCell.v;
+
+        if (!playerRaw || !ratingRaw) return;
+
+        const sheetPlayerName = String(playerRaw).trim();
+        const displayName = PLAYER_NAME_MAP[sheetPlayerName] || sheetPlayerName;
+        const ratingNum = Number(String(ratingRaw).replace(/[^\d.]/g, ""));
+
+        if (isNaN(ratingNum)) return;
+
+        totals[displayName] = (totals[displayName] || 0) + ratingNum;
+        counts[displayName] = (counts[displayName] || 0) + 1;
+      });
+
+      // Write back into cards
+      Object.keys(totals).forEach(displayName => {
+        const avg = totals[displayName] / counts[displayName];
+        setAvgOnCard(displayName, avg);
+      });
+    } catch (err) {
+      console.error("Error loading Google Sheet ratings:", err);
+    }
+  }
+
+  // kick it off
+  document.addEventListener("DOMContentLoaded", loadAverages);
+</script>
+https://kentav5.github.io/Knicks-Universe---Player-Polls/ratings.html?v=ku7
 </body>
 </html>
 
