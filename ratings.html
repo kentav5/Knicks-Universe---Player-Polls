@@ -519,6 +519,124 @@
   document.addEventListener("DOMContentLoaded", loadAverages);
 </script>
 https://kentav5.github.io/Knicks-Universe---Player-Polls/ratings.html?v=ku7
+<script>
+  // ====== KNICKS UNIVERSE LIVE AVERAGES (WIDE SHEET) ======
+
+  // Your sheet from the URL you shared:
+  // https://docs.google.com/spreadsheets/d/1E94cSs2C981bSPFIgCmKN2k1ZKx5Fi_E6T6qNv1hOus/edit?gid=640449104#gid=640449104
+  const SHEET_ID = "1E94cSs2C981bSPFIgCmKN2k1ZKx5Fi_E6T6qNv1hOus";
+  const SHEET_GID = "640449104"; // the tab you showed
+  const SHEET_URL =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
+
+  // Map the COLUMN HEADER from Google Sheets → to the player name in your HTML card (.ku-name)
+  // Left side: EXACTLY how the column appears in your Sheet
+  // Right side: EXACTLY how it appears in your <div class="ku-name">...</div>
+  const SHEET_TO_CARD_NAME = {
+    "Jalen Brunson": "Jalen Brunson (PG)",
+    "Karl-Anthony Towns": "Karl-Anthony Towns (C/PF)",
+    "OG Anunoby": "OG Anunoby (SF)",
+    "Mikal Bridges": "Mikal Bridges (SG/SF)",
+    "Josh Hart": "Josh Hart (SG/SF)",
+    "Mitchell Robinson": "Mitchell Robinson (C)",
+    "Jordan Clarkson": "Jordan Clarkson (PG/SG)",
+    "Guerschon Yabusele": "Guerschon Yabusele (F)",
+    "Tyler Kolek": "Tyler Kolek (PG)",
+    "Pacome Dadiet": "Pacôme Dadiet (SF)",
+    "Pacôme Dadiet": "Pacôme Dadiet (SF)",  // in case Google strips accent
+    "Ariel Hukporti": "Ariel Hukporti (C)",
+    "Landry Shamet": "Landry Shamet (G)"
+  };
+
+  // find card DOM node by its display name
+  function findCardByName(displayName) {
+    const cards = document.querySelectorAll(".ku-card");
+    for (const card of cards) {
+      const nameEl = card.querySelector(".ku-name");
+      if (!nameEl) continue;
+      if (nameEl.textContent.trim() === displayName) {
+        return card;
+      }
+    }
+    return null;
+  }
+
+  // write avg into the card
+  function setAvgOnCard(displayName, avg) {
+    const card = findCardByName(displayName);
+    if (!card) return;
+    const avgEl = card.querySelector(".ku-avg");
+    if (!avgEl) return;
+    avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
+  }
+
+  async function loadKnicksAveragesWide() {
+    try {
+      const resp = await fetch(SHEET_URL);
+      const text = await resp.text();
+
+      // gviz returns JS-wrapped JSON, so unwrap
+      const jsonStr = text.replace(/(^.*setResponse\(|\);?\s*$)/g, "");
+      const data = JSON.parse(jsonStr);
+
+      // columns in the sheet
+      const cols = data.table.cols; // array of column metadata
+
+      // We'll build { "Jalen Brunson (PG)": {sum: X, count: Y}, ... }
+      const stats = {};
+
+      // Loop through all rows (each submission)
+      data.table.rows.forEach(row => {
+        const cells = row.c; // array of cell objects (same order as cols)
+        if (!cells) return;
+
+        // start at col 1 because col 0 is usually Timestamp
+        for (let colIndex = 1; colIndex < cols.length; colIndex++) {
+          const colMeta = cols[colIndex];
+          if (!colMeta) continue;
+
+          const sheetHeader = colMeta.label && colMeta.label.trim();
+          if (!sheetHeader) continue;
+
+          // match this column to a card name
+          const cardName = SHEET_TO_CARD_NAME[sheetHeader];
+          if (!cardName) {
+            // column not in our mapping — skip
+            continue;
+          }
+
+          const cell = cells[colIndex];
+          if (!cell || cell.v == null) continue;
+
+          // Clean value: could be "10 – GOAT 🐐"
+          const rawVal = String(cell.v);
+          const numVal = Number(rawVal.replace(/[^\d.]/g, ""));
+          if (isNaN(numVal)) continue;
+
+          if (!stats[cardName]) {
+            stats[cardName] = { sum: 0, count: 0 };
+          }
+          stats[cardName].sum += numVal;
+          stats[cardName].count += 1;
+        }
+      });
+
+      // Now write to cards
+      Object.keys(stats).forEach(cardName => {
+        const { sum, count } = stats[cardName];
+        if (!count) return;
+        const avg = sum / count;
+        setAvgOnCard(cardName, avg);
+      });
+
+    } catch (err) {
+      console.error("Error loading Knicks ratings from Google Sheets:", err);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadKnicksAveragesWide);
+</script>
+
 </body>
 </html>
 
