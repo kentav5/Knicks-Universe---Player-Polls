@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KnicksUniverse – Player Ratings</title>
-  <meta name="description" content="Fan voting for KnicksUniverse.com — rate Knicks players 10 (GOAT) to 1 (Trash). Votes are stored via Google Forms without leaving the page." />
+  <meta name="description" content="Fan voting for KnicksUniverse.com — rate Knicks players 10 (GOAT 🐐) to 1 (Trash 🗑️). Votes are stored via Google Forms without leaving the page." />
   <style>
     :root {
       --knicks-blue: #006BB6;
@@ -128,7 +128,9 @@
       Rate each player from <strong>10 (GOAT 🐐)</strong> down to <strong>1 (Trash 🗑️)</strong>.
       Your vote is recorded instantly without leaving this page.
     </p>
-    <p class="note">Tip: Replace each <code>name="entry.PLAYER_ID_PLACEHOLDER"</code> with your real Google Form field IDs, and update the <code>FORM_ID</code> in the <code>action</code> URL.</p>
+    <p class="note">
+      Replace <code>YOUR_FORM_ID_HERE</code> and each <code>entry.XYZ_PLACEHOLDER</code> with your real Google Form values.
+    </p>
   </header>
 
   <div class="ku-grid" id="ku-grid">
@@ -365,9 +367,10 @@
     © KnicksUniverse.com — voting is anonymous. Results are aggregated in Google Sheets connected to your Google Form.
   </footer>
 
+  <!-- existing script: thank-you + reset + height -->
   <script>
-    // Inline confirmation + debounce (prevents double submit feeling)
     (function(){
+      // inline confirmation + reset
       document.querySelectorAll('.ku-card').forEach(function(form){
         var select = form.querySelector('.ku-select');
         var button = form.querySelector('.ku-submit');
@@ -381,10 +384,8 @@
           }, 1500);
         });
       });
-    })();
 
-    // Optional: report our height to parent (Squarespace) for auto-resize, if you use the postMessage listener there
-    (function(){
+      // auto height report (optional, for Squarespace iframe)
       function reportHeight(){
         try {
           var h = Math.max(
@@ -399,243 +400,164 @@
       setInterval(reportHeight, 1000);
     })();
   </script>
-<script>
-  // ========= CONFIGURE THIS ==============
-  // 1) Put your real Google Sheet ID here
-  const SHEET_ID = "YOUR_SHEET_ID_HERE";
 
-  // 2) If your sheet (first sheet, gid=0) has these column headers:
-  //    Player | Rating
-  //    then leave this as is:
-  const PLAYER_COL_NAME = "Player";
-  const RATING_COL_NAME = "Rating";
-  // =======================================
+  <!-- NEW script: fetch Google Sheet (wide format) and fill in averages -->
+  <script>
+    // your actual sheet + tab (you shared this)
+    const SHEET_ID = "1E94cSs2C981bSPFIgCmKN2k1ZKx5Fi_E6T6qNv1hOus";
+    const SHEET_GID = "640449104";
+    const SHEET_URL =
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
 
-  // Map sheet "Player" values to the names in your HTML cards.
-  // LEFT side: exactly what’s in your Google Sheet "Player" column
-  // RIGHT side: the text in .ku-name in your HTML
-  const PLAYER_NAME_MAP = {
-    "Jalen Brunson": "Jalen Brunson (PG)",
-    "Karl-Anthony Towns": "Karl-Anthony Towns (C/PF)",
-    "OG Anunoby": "OG Anunoby (SF)",
-    "Mikal Bridges": "Mikal Bridges (SG/SF)",
-    "Josh Hart": "Josh Hart (SG/SF)",
-    "Mitchell Robinson": "Mitchell Robinson (C)",
-    "Jordan Clarkson": "Jordan Clarkson (PG/SG)",
-    "Guerschon Yabusele": "Guerschon Yabusele (F)",
-    "Tyler Kolek": "Tyler Kolek (PG)",
-    "Pacome Dadiet": "Pacôme Dadiet (SF)",
-    "Pacôme Dadiet": "Pacôme Dadiet (SF)",        // just in case accent missing
-    "Ariel Hukporti": "Ariel Hukporti (C)",
-    "Landry Shamet": "Landry Shamet (G)"
-  };
+    // map sheet headers (messy) → card names (clean)
+    const SHEET_HEADER_TO_CARD = {
+      // Jalen
+      "Jalen Brunson (PG)": "Jalen Brunson (PG)",
 
-  // Build the public JSON URL
-  const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+      // Karl-Anthony
+      "Karl-Anthony Towns Rating": "Karl-Anthony Towns (C/PF)",
+      "Karl-Anthony Towns (C/PF)": "Karl-Anthony Towns (C/PF)",
 
-  // Helper: find a card DOM node by its display name
-  function findCardByName(displayName) {
-    const cards = document.querySelectorAll(".ku-card");
-    for (const card of cards) {
-      const nameEl = card.querySelector(".ku-name");
-      if (!nameEl) continue;
-      const text = nameEl.textContent.trim();
-      if (text === displayName) {
-        return card;
+      // OG
+      "OG Anunoby Rating": "OG Anunoby (SF)",
+      "OG Anunoby (SF)": "OG Anunoby (SF)",
+      "OG Anunoby (SG/SF)": "OG Anunoby (SF)",
+
+      // Mikal
+      "Mikal Bridges Rating": "Mikal Bridges (SG/SF)",
+      "Mikal Bridges (SG/SF)": "Mikal Bridges (SG/SF)",
+
+      // Josh
+      "Josh Hart Rating": "Josh Hart (SG/SF)",
+      "Josh Hart (SG/SF)": "Josh Hart (SG/SF)",
+
+      // Mitchell
+      "Mitchell Robinson Rating": "Mitchell Robinson (C)",
+      "Mitchell Robinson (C)": "Mitchell Robinson (C)",
+
+      // Jordan
+      "Jordan Clarkson Rating": "Jordan Clarkson (PG/SG)",
+      "Jordan Clarkson (PG/SG)": "Jordan Clarkson (PG/SG)",
+
+      // Guerschon (with or without trailing spaces)
+      "Guerschon Yabusele Rating": "Guerschon Yabusele (F)",
+      "Guerschon Yabusele Rating ": "Guerschon Yabusele (F)",
+      "Guerschon Yabusele (F)": "Guerschon Yabusele (F)",
+
+      // Tyler
+      "Tyler Kolek Rating": "Tyler Kolek (PG)",
+      "Tyler Kolek Rating ": "Tyler Kolek (PG)",
+      "Tyler Kolek (PG)": "Tyler Kolek (PG)",
+
+      // Pacôme / Pacome / extra spaces
+      "Pacôme Dadiet": "Pacôme Dadiet (SF)",
+      "Pacôme Dadiet (SF)": "Pacôme Dadiet (SF)",
+      "Pacome Dadiet": "Pacôme Dadiet (SF)",
+      "Pacome Dadiet (SF)": "Pacôme Dadiet (SF)",
+      "Pacôme Dadiet  ": "Pacôme Dadiet (SF)",
+      "Pacôme Dadiet   ": "Pacôme Dadiet (SF)",
+      "  Pacôme Dadiet (SF)": "Pacôme Dadiet (SF)",
+
+      // Ariel
+      "Ariel Hukporti": "Ariel Hukporti (C)",
+      "Ariel Hukporti (C)": "Ariel Hukporti (C)"
+
+      // Landry Shamet — add here when you add a column in your sheet:
+      // "Landry Shamet": "Landry Shamet (G)"
+    };
+
+    const IGNORE_HEADERS = new Set([
+      "Timestamp",
+      "Email Address",
+      "Score",
+      "Column 15",
+      "Malcolm Brogdon (PG/SG)",
+      "Malcolm Brogdon",
+      "Malcolm Brogdon Rating"
+    ]);
+
+    function findCardByName(name) {
+      const cards = document.querySelectorAll(".ku-card");
+      for (const card of cards) {
+        const nameEl = card.querySelector(".ku-name");
+        if (!nameEl) continue;
+        if (nameEl.textContent.trim() === name) return card;
       }
+      return null;
     }
-    return null;
-  }
 
-  // Helper: set avg on card
-  function setAvgOnCard(displayName, avg) {
-    const card = findCardByName(displayName);
-    if (!card) return;
-    const avgEl = card.querySelector(".ku-avg");
-    if (!avgEl) return;
-    avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
-  }
+    function setAvgOnCard(name, avg) {
+      const card = findCardByName(name);
+      if (!card) return;
+      const avgEl = card.querySelector(".ku-avg");
+      if (!avgEl) return;
+      avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
+    }
 
-  // Fetch + parse the Google "gviz" JSON
-  async function loadAverages() {
-    try {
-      const resp = await fetch(SHEET_URL);
-      const text = await resp.text();
-
-      // gviz wraps JSON in a JS function, so we strip it
-      const jsonStr = text.replace(/(^.*setResponse\(|\);?\s*$)/g, "");
-      const data = JSON.parse(jsonStr);
-
-      // Find column indexes for Player and Rating
-      const cols = data.table.cols;
-      let playerColIndex = -1;
-      let ratingColIndex = -1;
-      cols.forEach((col, idx) => {
-        if (col.label === PLAYER_COL_NAME) playerColIndex = idx;
-        if (col.label === RATING_COL_NAME) ratingColIndex = idx;
-      });
-
-      if (playerColIndex === -1 || ratingColIndex === -1) {
-        console.warn("Could not find Player/Rating columns. Check your sheet headers.");
-        return;
+    function normalizeHeader(raw) {
+      if (!raw) return "";
+      let h = String(raw).trim();
+      h = h.replace(/\s+/g, " ");
+      if (h.endsWith(" Rating")) {
+        h = h.slice(0, -7);
       }
-
-      // Aggregate
-      const totals = {};   // { "Jalen Brunson": sum }
-      const counts = {};   // { "Jalen Brunson": count }
-
-      data.table.rows.forEach(row => {
-        if (!row.c) return;
-        const playerCell = row.c[playerColIndex];
-        const ratingCell = row.c[ratingColIndex];
-        if (!playerCell || !ratingCell) return;
-
-        const playerRaw = playerCell.v;
-        const ratingRaw = ratingCell.v;
-
-        if (!playerRaw || !ratingRaw) return;
-
-        const sheetPlayerName = String(playerRaw).trim();
-        const displayName = PLAYER_NAME_MAP[sheetPlayerName] || sheetPlayerName;
-        const ratingNum = Number(String(ratingRaw).replace(/[^\d.]/g, ""));
-
-        if (isNaN(ratingNum)) return;
-
-        totals[displayName] = (totals[displayName] || 0) + ratingNum;
-        counts[displayName] = (counts[displayName] || 0) + 1;
-      });
-
-      // Write back into cards
-      Object.keys(totals).forEach(displayName => {
-        const avg = totals[displayName] / counts[displayName];
-        setAvgOnCard(displayName, avg);
-      });
-    } catch (err) {
-      console.error("Error loading Google Sheet ratings:", err);
+      return h;
     }
-  }
 
-  // kick it off
-  document.addEventListener("DOMContentLoaded", loadAverages);
-</script>
-https://kentav5.github.io/Knicks-Universe---Player-Polls/ratings.html?v=ku7
-<script>
-  // ====== KNICKS UNIVERSE LIVE AVERAGES (WIDE SHEET) ======
+    async function loadKnicksFromSheetWide() {
+      try {
+        const resp = await fetch(SHEET_URL);
+        const text = await resp.text();
+        const jsonStr = text.replace(/(^.*setResponse\(|\);?\s*$)/g, "");
+        const data = JSON.parse(jsonStr);
 
-  // Your sheet from the URL you shared:
-  // https://docs.google.com/spreadsheets/d/1E94cSs2C981bSPFIgCmKN2k1ZKx5Fi_E6T6qNv1hOus/edit?gid=640449104#gid=640449104
-  const SHEET_ID = "1E94cSs2C981bSPFIgCmKN2k1ZKx5Fi_E6T6qNv1hOus";
-  const SHEET_GID = "640449104"; // the tab you showed
-  const SHEET_URL =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
+        const cols = data.table.cols;
+        const rows = data.table.rows;
 
-  // Map the COLUMN HEADER from Google Sheets → to the player name in your HTML card (.ku-name)
-  // Left side: EXACTLY how the column appears in your Sheet
-  // Right side: EXACTLY how it appears in your <div class="ku-name">...</div>
-  const SHEET_TO_CARD_NAME = {
-    "Jalen Brunson": "Jalen Brunson (PG)",
-    "Karl-Anthony Towns": "Karl-Anthony Towns (C/PF)",
-    "OG Anunoby": "OG Anunoby (SF)",
-    "Mikal Bridges": "Mikal Bridges (SG/SF)",
-    "Josh Hart": "Josh Hart (SG/SF)",
-    "Mitchell Robinson": "Mitchell Robinson (C)",
-    "Jordan Clarkson": "Jordan Clarkson (PG/SG)",
-    "Guerschon Yabusele": "Guerschon Yabusele (F)",
-    "Tyler Kolek": "Tyler Kolek (PG)",
-    "Pacome Dadiet": "Pacôme Dadiet (SF)",
-    "Pacôme Dadiet": "Pacôme Dadiet (SF)",  // in case Google strips accent
-    "Ariel Hukporti": "Ariel Hukporti (C)",
-    "Landry Shamet": "Landry Shamet (G)"
-  };
+        const sums = {};
+        const counts = {};
 
-  // find card DOM node by its display name
-  function findCardByName(displayName) {
-    const cards = document.querySelectorAll(".ku-card");
-    for (const card of cards) {
-      const nameEl = card.querySelector(".ku-name");
-      if (!nameEl) continue;
-      if (nameEl.textContent.trim() === displayName) {
-        return card;
-      }
-    }
-    return null;
-  }
+        rows.forEach(row => {
+          const cells = row.c || [];
+          for (let colIndex = 0; colIndex < cols.length; colIndex++) {
+            const colMeta = cols[colIndex];
+            if (!colMeta) continue;
+            let header = normalizeHeader(colMeta.label);
+            if (!header) continue;
 
-  // write avg into the card
-  function setAvgOnCard(displayName, avg) {
-    const card = findCardByName(displayName);
-    if (!card) return;
-    const avgEl = card.querySelector(".ku-avg");
-    if (!avgEl) return;
-    avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
-  }
+            if (IGNORE_HEADERS.has(header)) continue;
 
-  async function loadKnicksAveragesWide() {
-    try {
-      const resp = await fetch(SHEET_URL);
-      const text = await resp.text();
+            // map to card
+            const cardName = SHEET_HEADER_TO_CARD[header];
+            if (!cardName) continue;
 
-      // gviz returns JS-wrapped JSON, so unwrap
-      const jsonStr = text.replace(/(^.*setResponse\(|\);?\s*$)/g, "");
-      const data = JSON.parse(jsonStr);
+            const cell = cells[colIndex];
+            if (!cell || cell.v == null) continue;
 
-      // columns in the sheet
-      const cols = data.table.cols; // array of column metadata
+            const rawVal = String(cell.v);
+            const numVal = Number(rawVal.replace(/[^\d.]/g, ""));
+            if (isNaN(numVal)) continue;
 
-      // We'll build { "Jalen Brunson (PG)": {sum: X, count: Y}, ... }
-      const stats = {};
-
-      // Loop through all rows (each submission)
-      data.table.rows.forEach(row => {
-        const cells = row.c; // array of cell objects (same order as cols)
-        if (!cells) return;
-
-        // start at col 1 because col 0 is usually Timestamp
-        for (let colIndex = 1; colIndex < cols.length; colIndex++) {
-          const colMeta = cols[colIndex];
-          if (!colMeta) continue;
-
-          const sheetHeader = colMeta.label && colMeta.label.trim();
-          if (!sheetHeader) continue;
-
-          // match this column to a card name
-          const cardName = SHEET_TO_CARD_NAME[sheetHeader];
-          if (!cardName) {
-            // column not in our mapping — skip
-            continue;
+            if (!sums[cardName]) {
+              sums[cardName] = 0;
+              counts[cardName] = 0;
+            }
+            sums[cardName] += numVal;
+            counts[cardName] += 1;
           }
+        });
 
-          const cell = cells[colIndex];
-          if (!cell || cell.v == null) continue;
+        Object.keys(sums).forEach(cardName => {
+          const avg = sums[cardName] / counts[cardName];
+          setAvgOnCard(cardName, avg);
+        });
 
-          // Clean value: could be "10 – GOAT 🐐"
-          const rawVal = String(cell.v);
-          const numVal = Number(rawVal.replace(/[^\d.]/g, ""));
-          if (isNaN(numVal)) continue;
-
-          if (!stats[cardName]) {
-            stats[cardName] = { sum: 0, count: 0 };
-          }
-          stats[cardName].sum += numVal;
-          stats[cardName].count += 1;
-        }
-      });
-
-      // Now write to cards
-      Object.keys(stats).forEach(cardName => {
-        const { sum, count } = stats[cardName];
-        if (!count) return;
-        const avg = sum / count;
-        setAvgOnCard(cardName, avg);
-      });
-
-    } catch (err) {
-      console.error("Error loading Knicks ratings from Google Sheets:", err);
+      } catch (err) {
+        console.error("KnicksUniverse: error loading sheet averages", err);
+      }
     }
-  }
 
-  document.addEventListener("DOMContentLoaded", loadKnicksAveragesWide);
-</script>
+    document.addEventListener("DOMContentLoaded", loadKnicksFromSheetWide);
+  </script>
 </body>
 </html>
-
