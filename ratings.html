@@ -119,7 +119,7 @@
   </style>
 </head>
 <body>
-  <!-- Hidden target to swallow the Google Forms response and avoid navigation -->
+  <!-- Hidden target to swallow Google Forms response and avoid navigation -->
   <iframe name="ku_hidden_submit" style="display:none;"></iframe>
 
   <header>
@@ -129,7 +129,7 @@
       Your vote is recorded instantly without leaving this page.
     </p>
     <p class="note">
-      Action URL is your Google Form <code>/formResponse</code>. Option values are numeric (10→1) for clean averages.
+      Action URL points to your Google Form <code>/formResponse</code>. Option values are numeric (10→1) for clean averages.
     </p>
   </header>
 
@@ -204,18 +204,20 @@
 
     <!-- Josh Hart (SG/SF) -->
     <form class="ku-card" action="https://docs.google.com/forms/d/15UEg8PTmWExIhrFY2Y2uJI6044UR6QAIy6JDcraTbu8/formResponse" method="POST" target="ku_hidden_submit">
-      <div class="ku-imgwrap"><img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628404.png" alt="Josh Hart"></div>
+      <div class="ku-imgwrap">
+        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628404.png" alt="Josh Hart">
+      </div>
       <div class="ku-name">Josh Hart (SG/SF)</div>
       <p class="ku-avg">Avg Fan Score: <strong>—</strong></p>
       <label class="ku-label" for="hart">Your Rating:</label>
-      <select class="ku-select" name="entry."> <!-- (No ID provided for Hart yet) -->
+      <select class="ku-select" name="entry.204389421" id="hart" required>
         <option value="" disabled selected>Select your rating</option>
         <option value="10">10 – GOAT 🐐</option><option value="9">9 – All-Star ⭐️</option><option value="8">8 – Starter 🔥</option>
         <option value="7">7 – Solid 💪</option><option value="6">6 – Rotation 🔄</option><option value="5">5 – Average 🟰</option>
         <option value="4">4 – Below Average 💤</option><option value="3">3 – Bench Warmer 🪑</option><option value="2">2 – G-League 🌴</option>
         <option value="1">1 – Trash 🗑️</option>
       </select>
-      <button class="ku-submit" type="submit" disabled>Submit</button>
+      <button class="ku-submit" type="submit">Submit</button>
       <div class="ku-confirm">Thanks! Your vote for Josh Hart was recorded.</div>
     </form>
 
@@ -238,7 +240,14 @@
 
     <!-- Miles "Deuce" McBride (PG/SG) -->
     <form class="ku-card" action="https://docs.google.com/forms/d/15UEg8PTmWExIhrFY2Y2uJI6044UR6QAIy6JDcraTbu8/formResponse" method="POST" target="ku_hidden_submit">
-      <div class="ku-imgwrap"><img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630545.png" alt='Miles "Deuce" McBride'></div>
+      <div class="ku-imgwrap">
+        <img
+          class="ku-img"
+          src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630545.png"
+          alt='Miles "Deuce" McBride'
+          onerror="this.onerror=null;this.src='https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/1630545.png';"
+        >
+      </div>
       <div class="ku-name">Miles "Deuce" McBride (PG/SG)</div>
       <p class="ku-avg">Avg Fan Score: <strong>—</strong></p>
       <label class="ku-label" for="deuce">Your Rating:</label>
@@ -367,8 +376,6 @@
         var select = form.querySelector('.ku-select');
         var button = form.querySelector('.ku-submit');
         var confirm = form.querySelector('.ku-confirm');
-        // disable submit when no entry id (e.g., Josh Hart placeholder)
-        if (select && !select.name) { if (button) button.disabled = true; }
         form.addEventListener('submit', function(){
           if (button) button.disabled = true;
           if (confirm) confirm.classList.add('show');
@@ -379,6 +386,7 @@
         });
       });
 
+      // optional height messaging for Squarespace iframe
       function reportHeight(){
         try {
           var h = Math.max(
@@ -517,4 +525,5 @@
   </script>
 </body>
 </html>
+
 
