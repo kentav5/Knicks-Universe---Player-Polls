@@ -15,7 +15,61 @@
       --radius: 14px;
       --success: #0a7d32;
       --bg: #f7f7fb;
-    }
+    } 
+/* Top Nav (Knicks Universe) */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 0 16px;
+  border-bottom:1px solid rgba(148,163,184,.22);
+  margin-bottom:14px;
+}
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.nav-logo{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg, rgba(0,107,182,.95), rgba(245,132,38,.92));
+  box-shadow:0 10px 20px rgba(0,0,0,.25);
+  flex:0 0 auto;
+}
+.nav-title{
+  font-weight:950;
+  letter-spacing:.2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.nav-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.nav a{
+  text-decoration:none;
+  color:#f8fafc;
+  font-weight:900;
+  font-size:.9rem;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.22);
+  background:rgba(2,6,23,.22);
+  transition:transform .12s ease, border-color .12s ease;
+}
+.nav a:hover{
+  transform:translateY(-1px);
+  border-color:rgba(245,132,38,.45);
+}
+.nav a.active{
+  border-color:#F58426;
+  box-shadow:0 0 0 2px rgba(245,132,38,.22);
+}   
     * { box-sizing: border-box; }
     body {
       margin: 0; padding: 28px 18px;
@@ -118,7 +172,20 @@
     }
   </style>
 </head>
-<body>
+<body> 
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo" aria-hidden="true"></div>
+    <div class="nav-title">Knicks Universe</div>
+  </div>
+
+  <div class="nav-links">
+    <a href="https://kentav5.github.io/Knicks-Universe-Media-Ratings/index.html">Hub</a>
+    <a href="https://kentav5.github.io/Knicks-Universe-Media-Ratings/media-ratings.html">Media Ratings</a>
+    <a class="active" href="ratings.html">Player Ratings</a>
+  </div>
+</nav>
+ 
 <nav class="nav">
   <div class="nav-left">
     <div class="nav-logo" aria-hidden="true"></div>
