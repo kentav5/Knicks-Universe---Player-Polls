@@ -667,7 +667,13 @@ const data = JSON.parse(jsonStr);
         console.error("KnicksUniverse: error loading sheet averages", err);
       }
     }
-
+function setVotesOnCard(name, votes) {
+  const card = findCardByName(name);
+  if (!card) return;
+  const votesEl = card.querySelector(".ku-votes");
+  if (!votesEl) return;
+  votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
+}    
     window.loadKnicksFromSheetWide = loadKnicksFromSheetWide;
     document.addEventListener("DOMContentLoaded", loadKnicksFromSheetWide);
   </script>
