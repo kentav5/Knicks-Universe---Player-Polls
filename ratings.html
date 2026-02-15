@@ -175,6 +175,33 @@
       max-width: 1100px; margin: 26px auto 0; text-align: center; color: var(--text-muted);
       font-size: 12px;
     }
+.ku-sortbar{
+  max-width: 1100px;
+  margin: 10px auto 0;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+}
+.ku-sortlabel{
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 14px;
+}
+.ku-sortbtn{
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+}
+.ku-sortbtn.active{
+  border-color: var(--knicks-blue);
+  box-shadow: 0 0 0 2px rgba(0,107,182,.15);
+}    
   </style>
 </head>
 <body> 
@@ -203,6 +230,13 @@
     </p>
   </header>
 
+<div class="ku-sortbar">
+  <span class="ku-sortlabel">Sort:</span>
+  <button class="ku-sortbtn active" type="button" data-sort="rating">Highest Rated</button>
+  <button class="ku-sortbtn" type="button" data-sort="votes">Most Votes</button>
+  <button class="ku-sortbtn" type="button" data-sort="az">A–Z</button>
+</div>
+ 
   <div class="ku-grid" id="ku-grid">
     <!-- Jalen Brunson (PG) -->
     <form class="ku-card"
@@ -422,7 +456,7 @@
       <div class="ku-name">Jeremy Sochan (F)</div>
       <p class="ku-avg">Avg Fan Score: <strong>—</strong></p>
       <p class="ku-votes">Votes: <strong>—</strong></p>
-      <label class="ku-label" for="anunoby">Your Rating:</label>
+      <label class="ku-label" for="sochan">Your Rating:</label>
       <select class="ku-select" name="entry.1338829398" id="sochan" required>
         <option value="" disabled selected>Select your rating</option>
         <option>10 – GOAT 🐐</option><option>9 – All-Star ⭐️</option><option>8 – Starter 🔥</option>
@@ -599,7 +633,7 @@
       "Landry Shamet (G)": "Landry Shamet (G)",
       // Add BOTH Mohamed columns here (copy exact header text from your Sheet)
       "Mohamed Diawara (F)": "Mohamed Diawara (F)",
-      "Mohamed Diawara": "Mohamed Diawara"
+      "Mohamed Diawara": "Mohamed Diawara (F)"
 
       
     };
@@ -617,19 +651,24 @@
     }
 
     function setAvgOnCard(name, avg) {
-      const card = findCardByName(name);
-      if (!card) return;
-      const avgEl = card.querySelector(".ku-avg");
-      if (!avgEl) return;
-      avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
-    }
+  const card = findCardByName(name);
+  if (!card) return;
+  const avgEl = card.querySelector(".ku-avg");
+  if (!avgEl) return;
+
+  card.dataset.avg = String(avg); 
+  avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
+}
+
 function setVotesOnCard(name, votes) {
   const card = findCardByName(name);
   if (!card) return;
   const votesEl = card.querySelector(".ku-votes");
   if (!votesEl) return;
+
+  card.dataset.votes = String(votes);
   votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
-}
+}    
     
     function normalizeHeader(raw) {
       if (!raw) return "";
@@ -637,7 +676,55 @@ function setVotesOnCard(name, votes) {
       h = h.replace(/\s+/g, " ");
       return h;
     }
+let currentSortMode = "rating"; // default: Highest Rated (avg desc, then votes desc)
 
+function getNameFromCard(card){
+  const nameEl = card.querySelector(".ku-name");
+  return nameEl ? nameEl.textContent.trim() : "";
+}
+
+function sortCards(mode){
+  currentSortMode = mode;
+  const grid = document.getElementById("ku-grid");
+  if (!grid) return;
+
+  const cards = Array.from(grid.querySelectorAll(".ku-card"));
+
+  cards.sort((a, b) => {
+    const aAvg = parseFloat(a.dataset.avg || "0");
+    const bAvg = parseFloat(b.dataset.avg || "0");
+    const aVotes = parseInt(a.dataset.votes || "0", 10);
+    const bVotes = parseInt(b.dataset.votes || "0", 10);
+
+    if (mode === "votes") {
+      if (bVotes !== aVotes) return bVotes - aVotes;
+      return bAvg - aAvg; // tiebreaker
+    }
+
+    if (mode === "az") {
+      return getNameFromCard(a).localeCompare(getNameFromCard(b));
+    }
+
+    // mode === "rating" (your requested default)
+    if (bAvg !== aAvg) return bAvg - aAvg;
+    if (bVotes !== aVotes) return bVotes - aVotes;
+    return getNameFromCard(a).localeCompare(getNameFromCard(b));
+  });
+
+  // Re-append in sorted order
+  cards.forEach(card => grid.appendChild(card));
+}
+
+function initSortButtons(){
+  const btns = document.querySelectorAll(".ku-sortbtn");
+  btns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      btns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      sortCards(btn.dataset.sort);
+    });
+  });
+}   
     async function loadKnicksFromSheetWide() {
       try {
         const resp = await fetch(SHEET_URL);
@@ -691,19 +778,22 @@ const data = JSON.parse(jsonStr);
           setAvgOnCard(cardName, avg);
           setVotesOnCard(cardName, counts[cardName]);
         });
+        
+        sortCards(currentSortMode);
       } catch (err) {
         console.error("KnicksUniverse: error loading sheet averages", err);
       }
     }
-function setVotesOnCard(name, votes) {
-  const card = findCardByName(name);
-  if (!card) return;
-  const votesEl = card.querySelector(".ku-votes");
-  if (!votesEl) return;
-  votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
-}    
+
     window.loadKnicksFromSheetWide = loadKnicksFromSheetWide;
-    document.addEventListener("DOMContentLoaded", loadKnicksFromSheetWide);
+    document.addEventListener("DOMContentLoaded", () => {
+      initSortButtons();
+      loadKnicksFromSheetWide();
+});
+
+
+
+    
   </script>
 </body>
 </html>
