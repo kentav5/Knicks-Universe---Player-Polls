@@ -32,12 +32,6 @@
   gap:10px;
   min-width:0;
 }
-.nav-logo{
-  width:34px;height:34px;border-radius:10px;
-  background:linear-gradient(135deg, rgba(0,107,182,.95), rgba(245,132,38,.92));
-  box-shadow:0 10px 20px rgba(0,0,0,.25);
-  flex:0 0 auto;
-}
 .nav-title{
   font-weight:950;
   letter-spacing:.2px;
@@ -208,7 +202,7 @@
  
 <nav class="nav">
   <div class="nav-left">
-    <div class="nav-logo" aria-hidden="true"></div>
+    <img src="https://images.squarespace-cdn.com/content/v1/66da3d065465a528080aa879/29e0e3f1-6e0b-48bb-899d-18a9a2d35cba/logo+2.png?format=1500w" alt="Knicks Universe" style="height:34px;width:auto;display:block;">
     <div class="nav-title">Knicks Universe</div>
   </div>
 
@@ -222,7 +216,7 @@
 </nav>
 
   
-  <!-- Hidden target so Google’s response doesn’t navigate away -->
+  <!-- Hidden target so Google's response doesn't navigate away -->
   <iframe name="ku_hidden_submit" style="display:none;"></iframe>
 
   <header>
@@ -614,8 +608,8 @@
     })();
 
     // Live averages from your NEW sheet
-    const SHEET_ID = "1WlJ5NGR5RwYru15zBH28MgAvxb9VkvZ01YLWHLj-6do";   // <-- replace
-    const SHEET_GID = "946748552"; // <-- replace
+    const SHEET_ID = "1WlJ5NGR5RwYru15zBH28MgAvxb9VkvZ01YLWHLj-6do";
+    const SHEET_GID = "946748552";
     const SHEET_URL =
       `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
 
@@ -634,11 +628,8 @@
       "Pacôme Dadiet (SF)": "Pacôme Dadiet (SF)",
       "Ariel Hukporti (C)": "Ariel Hukporti (C)",
       "Landry Shamet (G)": "Landry Shamet (G)",
-      // Add BOTH Mohamed columns here (copy exact header text from your Sheet)
       "Mohamed Diawara (F)": "Mohamed Diawara (F)",
       "Mohamed Diawara": "Mohamed Diawara (F)"
-
-      
     };
 
     const IGNORE_HEADERS = new Set(["Timestamp"]);
@@ -654,24 +645,22 @@
     }
 
     function setAvgOnCard(name, avg) {
-  const card = findCardByName(name);
-  if (!card) return;
-  const avgEl = card.querySelector(".ku-avg");
-  if (!avgEl) return;
+      const card = findCardByName(name);
+      if (!card) return;
+      const avgEl = card.querySelector(".ku-avg");
+      if (!avgEl) return;
+      card.dataset.avg = String(avg); 
+      avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
+    }
 
-  card.dataset.avg = String(avg); 
-  avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
-}
-
-function setVotesOnCard(name, votes) {
-  const card = findCardByName(name);
-  if (!card) return;
-  const votesEl = card.querySelector(".ku-votes");
-  if (!votesEl) return;
-
-  card.dataset.votes = String(votes);
-  votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
-}    
+    function setVotesOnCard(name, votes) {
+      const card = findCardByName(name);
+      if (!card) return;
+      const votesEl = card.querySelector(".ku-votes");
+      if (!votesEl) return;
+      card.dataset.votes = String(votes);
+      votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
+    }    
     
     function normalizeHeader(raw) {
       if (!raw) return "";
@@ -679,109 +668,86 @@ function setVotesOnCard(name, votes) {
       h = h.replace(/\s+/g, " ");
       return h;
     }
-let currentSortMode = "rating"; // default: Highest Rated (avg desc, then votes desc)
 
-function getNameFromCard(card){
-  const nameEl = card.querySelector(".ku-name");
-  return nameEl ? nameEl.textContent.trim() : "";
-}
+    let currentSortMode = "rating";
 
-function sortCards(mode){
-  currentSortMode = mode;
-  const grid = document.getElementById("ku-grid");
-  if (!grid) return;
-
-  const cards = Array.from(grid.querySelectorAll(".ku-card"));
-
-  cards.sort((a, b) => {
-    const aAvg = parseFloat(a.dataset.avg || "0");
-    const bAvg = parseFloat(b.dataset.avg || "0");
-    const aVotes = parseInt(a.dataset.votes || "0", 10);
-    const bVotes = parseInt(b.dataset.votes || "0", 10);
-
-    if (mode === "votes") {
-      if (bVotes !== aVotes) return bVotes - aVotes;
-      return bAvg - aAvg; // tiebreaker
+    function getNameFromCard(card){
+      const nameEl = card.querySelector(".ku-name");
+      return nameEl ? nameEl.textContent.trim() : "";
     }
 
-    if (mode === "az") {
-      return getNameFromCard(a).localeCompare(getNameFromCard(b));
+    function sortCards(mode){
+      currentSortMode = mode;
+      const grid = document.getElementById("ku-grid");
+      if (!grid) return;
+      const cards = Array.from(grid.querySelectorAll(".ku-card"));
+      cards.sort((a, b) => {
+        const aAvg = parseFloat(a.dataset.avg || "0");
+        const bAvg = parseFloat(b.dataset.avg || "0");
+        const aVotes = parseInt(a.dataset.votes || "0", 10);
+        const bVotes = parseInt(b.dataset.votes || "0", 10);
+        if (mode === "votes") {
+          if (bVotes !== aVotes) return bVotes - aVotes;
+          return bAvg - aAvg;
+        }
+        if (mode === "az") {
+          return getNameFromCard(a).localeCompare(getNameFromCard(b));
+        }
+        if (bAvg !== aAvg) return bAvg - aAvg;
+        if (bVotes !== aVotes) return bVotes - aVotes;
+        return getNameFromCard(a).localeCompare(getNameFromCard(b));
+      });
+      cards.forEach(card => grid.appendChild(card));
     }
 
-    // mode === "rating" (your requested default)
-    if (bAvg !== aAvg) return bAvg - aAvg;
-    if (bVotes !== aVotes) return bVotes - aVotes;
-    return getNameFromCard(a).localeCompare(getNameFromCard(b));
-  });
+    function initSortButtons(){
+      const btns = document.querySelectorAll(".ku-sortbtn");
+      btns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          btns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          sortCards(btn.dataset.sort);
+        });
+      });
+    }   
 
-  // Re-append in sorted order
-  cards.forEach(card => grid.appendChild(card));
-}
-
-function initSortButtons(){
-  const btns = document.querySelectorAll(".ku-sortbtn");
-  btns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      btns.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      sortCards(btn.dataset.sort);
-    });
-  });
-}   
     async function loadKnicksFromSheetWide() {
       try {
         const resp = await fetch(SHEET_URL);
-const text = await resp.text();
-
-// Google returns: /*O_o*/ google.visualization.Query.setResponse({...});
-//
-// So we grab just the JSON object between the first '{' and the last '}'.
-const start = text.indexOf("{");
-const end = text.lastIndexOf("}");
-if (start === -1 || end === -1) {
-  throw new Error("Unexpected sheet response format");
-}
-
-const jsonStr = text.substring(start, end + 1);
-const data = JSON.parse(jsonStr);
-
+        const text = await resp.text();
+        const start = text.indexOf("{");
+        const end = text.lastIndexOf("}");
+        if (start === -1 || end === -1) throw new Error("Unexpected sheet response format");
+        const jsonStr = text.substring(start, end + 1);
+        const data = JSON.parse(jsonStr);
         const cols = data.table.cols;
         const rows = data.table.rows;
-
         const sums = {};
         const counts = {};
-
         rows.forEach(row => {
           const cells = row.c || [];
           for (let colIndex = 0; colIndex < cols.length; colIndex++) {
             const colMeta = cols[colIndex];
             if (!colMeta) continue;
-
             let header = normalizeHeader(colMeta.label);
             if (!header || IGNORE_HEADERS.has(header)) continue;
-
             const cardName = SHEET_HEADER_TO_CARD[header];
             if (!cardName) continue;
-
             const cell = cells[colIndex];
             if (!cell || cell.v == null) continue;
-
             const rawVal = String(cell.v);
             const numVal = Number(rawVal.replace(/[^\d.]/g, ""));
             if (isNaN(numVal)) continue;
-
             if (!sums[cardName]) { sums[cardName] = 0; counts[cardName] = 0; }
             sums[cardName] += numVal;
             counts[cardName] += 1;
           }
         });
-
         Object.keys(sums).forEach(cardName => {
           const avg = sums[cardName] / counts[cardName];
           setAvgOnCard(cardName, avg);
           setVotesOnCard(cardName, counts[cardName]);
         });
-        
         sortCards(currentSortMode);
       } catch (err) {
         console.error("KnicksUniverse: error loading sheet averages", err);
@@ -792,12 +758,7 @@ const data = JSON.parse(jsonStr);
     document.addEventListener("DOMContentLoaded", () => {
       initSortButtons();
       loadKnicksFromSheetWide();
-});
-
-
-
-    
+    });
   </script>
 </body>
 </html>
-
