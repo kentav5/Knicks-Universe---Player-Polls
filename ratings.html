@@ -5,158 +5,334 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>KnicksUniverse – Player Ratings</title>
   <meta name="description" content="Fan voting for KnicksUniverse.com — rate Knicks players 10 (GOAT) to 1 (Trash). Votes are stored via Google Forms without leaving the page." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
+      --orange: #F58426;
+      --orange-dim: #c9681b;
       --knicks-blue: #006BB6;
-      --text-muted: #666;
-      --card-bg: #ffffff;
-      --border: #e5e7eb;
-      --shadow: 0 6px 20px rgba(0,0,0,0.06);
-      --radius: 14px;
-      --success: #0a7d32;
-      --bg: #f7f7fb;
-    } 
-/* Top Nav (Knicks Universe) */
-.nav{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:10px 0 16px;
-  border-bottom:1px solid rgba(148,163,184,.22);
-  margin-bottom:14px;
-}
-.nav-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-width:0;
-}
-.nav-title{
-  font-weight:950;
-  letter-spacing:.2px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.nav-links{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  align-items:center;
-}
-.nav a{
-  text-decoration:none;
-  color:#f8fafc;
-  font-weight:900;
-  font-size:.9rem;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(148,163,184,.22);
-  background:rgba(2,6,23,.22);
-  transition:transform .12s ease, border-color .12s ease;
-}
-.nav a:hover{
-  transform:translateY(-1px);
-  border-color:rgba(245,132,38,.45);
-}
-.nav a.active{
-  border-color:#F58426;
-  box-shadow:0 0 0 2px rgba(245,132,38,.22);
-}   
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 28px 18px;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: #111;
+      --blue-light: #5ba3d9;
+      --black: #04040f;
+      --near-black: rgba(8,8,22,0.95);
+      --dark: rgba(14,14,30,0.95);
+      --mid: #1e1e38;
+      --muted: #8888aa;
+      --white: #F5F5F0;
+      --border: rgba(255,255,255,0.08);
+      --success: #4ade80;
+      --radius: 10px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', Arial, sans-serif;
+      background: #04040f;
+      color: var(--white);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* STAR FIELD */
+    #star-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Everything above starfield */
+    .nav, .page-wrap, footer.ku-footnote {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 2rem;
+      height: 60px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .nav-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--white);
+      white-space: nowrap;
+    }
+    .nav-title span { color: var(--orange); }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .nav a {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav a:hover {
+      color: var(--orange);
+      border-color: rgba(245,132,38,0.4);
+    }
+    .nav a.active {
+      color: var(--orange);
+      border-color: var(--orange);
+      box-shadow: 0 0 0 2px rgba(245,132,38,0.15);
+    }
+
+    /* ── PAGE WRAP ── */
+    .page-wrap {
+      padding: 48px 18px 60px;
+    }
+
+    /* ── HEADER ── */
     header {
-      max-width: 1100px; margin: 0 auto 18px;
+      max-width: 1100px;
+      margin: 0 auto 24px;
       text-align: center;
+    }
+    .page-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .page-eyebrow::before, .page-eyebrow::after {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: var(--orange);
+      opacity: 0.5;
     }
     h1 {
-      font-size: 26px; margin: 0 0 10px; color: var(--knicks-blue);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1;
+      letter-spacing: 2px;
+      color: var(--white);
+      margin: 0 0 12px;
     }
+    h1 span { color: var(--orange); }
     p.lead {
-      margin: 0 auto 10px; max-width: 820px; color: var(--text-muted);
+      margin: 0 auto 8px;
+      max-width: 600px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
     }
-    .note { font-size: 12px; color: var(--text-muted); }
+    p.lead strong { color: var(--white); }
 
+    /* ── SORT BAR ── */
+    .ku-sortbar {
+      max-width: 1100px;
+      margin: 0 auto 24px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+    .ku-sortlabel {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .ku-sortbtn {
+      padding: 7px 18px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+    .ku-sortbtn:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+    .ku-sortbtn.active {
+      border-color: var(--orange);
+      background: var(--orange);
+      color: #000;
+    }
+
+    /* ── GRID ── */
     .ku-grid {
-      max-width: 1200px; margin: 18px auto 0;
+      max-width: 1200px;
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
       align-items: stretch;
     }
-    .ku-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-      background: var(--card-bg);
-      box-shadow: var(--shadow);
-      display: flex; flex-direction: column; justify-content: flex-start;
-      position: relative;
+
+    @media (max-width: 900px) {
+      .ku-grid { grid-template-columns: repeat(2, 1fr); }
     }
+    @media (max-width: 500px) {
+      .ku-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── CARD ── */
+    .ku-card {
+      background: var(--dark);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-top: 3px solid var(--orange);
+      border-radius: var(--radius);
+      padding: 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      position: relative;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .ku-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(245,132,38,0.12);
+      border-color: rgba(245,132,38,0.4);
+    }
+
+    /* ── HEADSHOT ── */
     .ku-imgwrap {
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 6px;
+      background: linear-gradient(180deg, #0a0820 0%, #1a1a35 100%);
+      border-radius: 8px;
+      padding: 4px;
       margin-bottom: 10px;
+      overflow: hidden;
     }
     .ku-img {
       width: 100%;
-      border-radius: 10px;
-      background: #ffffff;
+      border-radius: 6px;
       display: block;
+      filter: brightness(0.95);
+      transition: filter 0.3s;
     }
+    .ku-card:hover .ku-img { filter: brightness(1.05); }
+
+    /* ── CARD TEXT ── */
     .ku-name {
-      margin: 8px 0 4px 0;
-      font-size: 18px;
-      color: var(--knicks-blue);
-      font-weight: 700;
+      margin: 6px 0 3px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 1px;
+      color: var(--orange);
+      line-height: 1.1;
     }
     .ku-avg {
-      margin-bottom: 10px;
-      font-size: 14px;
-      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-size: 13px;
+      color: var(--muted);
     }
-.ku-votes{
-  margin: -6px 0 10px;
-  font-size: 14px;
-  color: var(--text-muted);
-}
+    .ku-avg strong { color: var(--white); }
+    .ku-votes {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .ku-votes strong { color: var(--white); }
     .ku-label {
-      color: var(--knicks-blue);
+      color: var(--orange);
       display: inline-block;
       margin-bottom: 6px;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
-    .ku-select, .ku-submit {
-      width: 100%;
-      border-radius: 8px;
-      font-size: 15px;
-    }
+
+    /* ── SELECT & SUBMIT ── */
     .ku-select {
+      width: 100%;
+      border-radius: 6px;
+      font-size: 14px;
       padding: 8px 10px;
-      border: 1px solid #cfcfcf;
+      border: 1px solid rgba(255,255,255,0.12);
       margin-bottom: 10px;
-      background: #fff;
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .ku-select:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+    .ku-select option {
+      background: #0e0e20;
+      color: var(--white);
     }
     .ku-submit {
-      background: var(--knicks-blue);
-      color: #fff;
+      width: 100%;
+      border-radius: 6px;
+      font-size: 14px;
+      background: var(--orange);
+      color: #000;
       border: none;
       padding: 10px 14px;
       cursor: pointer;
-      transition: opacity .15s ease, transform .06s ease;
-      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      transition: opacity 0.15s, transform 0.06s, background 0.2s;
     }
-    .ku-submit[disabled] { opacity: .6; cursor: default; }
-    .ku-submit:hover:not([disabled]) { opacity: .94; }
+    .ku-submit:hover:not([disabled]) {
+      background: var(--orange-dim);
+      opacity: 1;
+    }
     .ku-submit:active:not([disabled]) { transform: translateY(1px); }
+    .ku-submit[disabled] { opacity: 0.5; cursor: default; }
+
+    /* ── CONFIRM ── */
     .ku-confirm {
       display: none;
       margin-top: 8px;
@@ -165,81 +341,120 @@
       font-weight: 700;
     }
     .ku-confirm.show { display: block; }
+
+    /* ── FOOTER ── */
     footer.ku-footnote {
-      max-width: 1100px; margin: 26px auto 0; text-align: center; color: var(--text-muted);
+      max-width: 1100px;
+      margin: 40px auto 0;
+      text-align: center;
+      color: var(--muted);
       font-size: 12px;
+      padding: 0 18px;
     }
-.ku-sortbar{
-  max-width: 1100px;
-  margin: 10px auto 0;
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:center;
-}
-.ku-sortlabel{
-  color: var(--text-muted);
-  font-weight: 700;
-  font-size: 14px;
-}
-.ku-sortbtn{
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: #fff;
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 13px;
-}
-.ku-sortbtn.active{
-  border-color: var(--knicks-blue);
-  box-shadow: 0 0 0 2px rgba(0,107,182,.15);
-}    
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
   </style>
 </head>
-<body> 
- 
+<body>
+
+<!-- STARFIELD -->
+<canvas id="star-canvas"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('star-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [], shooting = [], W, H;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function makeStar() {
+    return { x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.4+0.1,
+      alpha: Math.random()*0.6+0.2, twinkleSpeed: Math.random()*0.008+0.002,
+      twinkleDir: Math.random()>0.5?1:-1 };
+  }
+  function makeShooter() {
+    return { x: Math.random()*W*0.7, y: Math.random()*H*0.4,
+      len: Math.random()*120+60, speed: Math.random()*6+4,
+      alpha:1, angle: Math.PI/5, life:1 };
+  }
+  function init() { resize(); stars = Array.from({length:320}, makeStar); }
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    const bg = ctx.createRadialGradient(W*0.4,H*0.3,0,W*0.5,H*0.5,Math.max(W,H)*0.9);
+    bg.addColorStop(0,'#0a0820'); bg.addColorStop(0.5,'#060414'); bg.addColorStop(1,'#020208');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    const neb1=ctx.createRadialGradient(W*0.15,H*0.2,0,W*0.15,H*0.2,W*0.35);
+    neb1.addColorStop(0,'rgba(80,40,160,0.07)'); neb1.addColorStop(1,'transparent');
+    ctx.fillStyle=neb1; ctx.fillRect(0,0,W,H);
+    const neb2=ctx.createRadialGradient(W*0.85,H*0.6,0,W*0.85,H*0.6,W*0.3);
+    neb2.addColorStop(0,'rgba(40,80,160,0.06)'); neb2.addColorStop(1,'transparent');
+    ctx.fillStyle=neb2; ctx.fillRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.alpha+=s.twinkleSpeed*s.twinkleDir;
+      if(s.alpha>0.9||s.alpha<0.1) s.twinkleDir*=-1;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(220,220,255,${s.alpha})`; ctx.fill();
+    });
+    shooting=shooting.filter(s=>s.life>0);
+    shooting.forEach(s=>{
+      s.x+=Math.cos(s.angle)*s.speed; s.y+=Math.sin(s.angle)*s.speed;
+      s.life-=0.025; s.alpha=s.life;
+      const grad=ctx.createLinearGradient(s.x,s.y,s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
+      grad.addColorStop(0,`rgba(255,255,255,${s.alpha})`); grad.addColorStop(1,'transparent');
+      ctx.beginPath(); ctx.moveTo(s.x,s.y);
+      ctx.lineTo(s.x-Math.cos(s.angle)*s.len,s.y-Math.sin(s.angle)*s.len);
+      ctx.strokeStyle=grad; ctx.lineWidth=1.5; ctx.stroke();
+    });
+    requestAnimationFrame(draw);
+  }
+  setInterval(()=>{ if(Math.random()<0.4) shooting.push(makeShooter()); },3000);
+  window.addEventListener('resize',resize);
+  init(); draw();
+})();
+</script>
+
+<!-- NAV -->
 <nav class="nav">
   <div class="nav-left">
     <img src="https://images.squarespace-cdn.com/content/v1/66da3d065465a528080aa879/29e0e3f1-6e0b-48bb-899d-18a9a2d35cba/logo+2.png?format=1500w" alt="Knicks Universe" style="height:34px;width:auto;display:block;">
-    <div class="nav-title">Knicks Universe</div>
+    <div class="nav-title">Knicks <span>Universe</span></div>
   </div>
-
- <div class="nav-links">
-  <a href="https://knicksuniverse.com" target="_blank" rel="noopener">🏠 Home</a>
-  <a href="https://kentav5.github.io/Knicks-Universe-Media-Ratings/media-ratings.html">Mainstream Media</a>
-  <a href="https://kentav5.github.io/Knicks-Universe-Local-Media-Ratings/local-media-ratings.html">Local NYC Media</a>
-  <a href="https://kentav5.github.io/Knicks-Universe---Content-Creator-Ratings/" target="_blank" rel="noopener">Content Creators</a>
-  <a class="active" href="ratings.html">Player Ratings</a>
-</div>
+  <div class="nav-links">
+    <a href="https://knicksuniverse.com" target="_blank" rel="noopener">🏠 Home</a>
+    <a href="https://kentav5.github.io/Knicks-Universe-Media-Ratings/media-ratings.html">Mainstream Media</a>
+    <a href="https://kentav5.github.io/Knicks-Universe-Local-Media-Ratings/local-media-ratings.html">Local NYC Media</a>
+    <a href="https://kentav5.github.io/Knicks-Universe---Content-Creator-Ratings/" target="_blank" rel="noopener">Content Creators</a>
+    <a class="active" href="ratings.html">Player Ratings</a>
+  </div>
 </nav>
 
-  
-  <!-- Hidden target so Google's response doesn't navigate away -->
-  <iframe name="ku_hidden_submit" style="display:none;"></iframe>
+<!-- Hidden iframe for Google Forms -->
+<iframe name="ku_hidden_submit" style="display:none;"></iframe>
+
+<div class="page-wrap">
 
   <header>
-    <h1>KnicksUniverse – Fan Player Ratings</h1>
+    <p class="page-eyebrow">Fan Ratings · 2025–26 Season</p>
+    <h1>KnicksUniverse —<br><span>Fan Player Ratings</span></h1>
     <p class="lead">
       Rate each player from <strong>10 (GOAT 🐐)</strong> down to <strong>1 (Trash 🗑️)</strong>.
       Your vote is recorded instantly without leaving this page.
     </p>
   </header>
 
-<div class="ku-sortbar">
-  <span class="ku-sortlabel">Sort:</span>
-  <button class="ku-sortbtn active" type="button" data-sort="rating">Highest Rated</button>
-  <button class="ku-sortbtn" type="button" data-sort="votes">Most Votes</button>
-  <button class="ku-sortbtn" type="button" data-sort="az">A–Z</button>
-</div>
- 
+  <div class="ku-sortbar">
+    <span class="ku-sortlabel">Sort:</span>
+    <button class="ku-sortbtn active" type="button" data-sort="rating">Highest Rated</button>
+    <button class="ku-sortbtn" type="button" data-sort="votes">Most Votes</button>
+    <button class="ku-sortbtn" type="button" data-sort="az">A–Z</button>
+  </div>
+
   <div class="ku-grid" id="ku-grid">
+
     <!-- Jalen Brunson (PG) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628973.png" alt="Jalen Brunson">
       </div>
@@ -261,8 +476,7 @@
     <!-- Karl-Anthony Towns (C/PF) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1626157.png" alt="Karl-Anthony Towns">
       </div>
@@ -284,8 +498,7 @@
     <!-- OG Anunoby (SF) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628384.png" alt="OG Anunoby">
       </div>
@@ -307,8 +520,7 @@
     <!-- Mikal Bridges (SG/SF) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628969.png" alt="Mikal Bridges">
       </div>
@@ -330,8 +542,7 @@
     <!-- Josh Hart (SG/SF) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1628404.png" alt="Josh Hart">
       </div>
@@ -353,8 +564,7 @@
     <!-- Mitchell Robinson (C) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1629011.png" alt="Mitchell Robinson">
       </div>
@@ -376,8 +586,7 @@
     <!-- Miles "Deuce" McBride (PG/SG) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630540.png" alt="Miles McBride">
       </div>
@@ -399,8 +608,7 @@
     <!-- Jordan Clarkson (PG/SG) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/203903.png" alt="Jordan Clarkson">
       </div>
@@ -422,8 +630,7 @@
     <!-- Jose Alvarado (PG) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630631.png" alt="Jose Alvarado">
       </div>
@@ -442,11 +649,10 @@
       <div class="ku-confirm">Thanks! Your vote for Jose Alvarado was recorded.</div>
     </form>
 
-<!-- Jeremy Sochan (F) -->
+    <!-- Jeremy Sochan (F) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1631110.png" alt="Jeremy Sochan">
       </div>
@@ -468,8 +674,7 @@
     <!-- Tyler Kolek (PG) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1642278.png" alt="Tyler Kolek">
       </div>
@@ -491,8 +696,7 @@
     <!-- Pacôme Dadiet (SF) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1642359.png" alt="Pacôme Dadiet">
       </div>
@@ -514,8 +718,7 @@
     <!-- Ariel Hukporti (C) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630574.png" alt="Ariel Hukporti">
       </div>
@@ -537,8 +740,7 @@
     <!-- Landry Shamet (G) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1629013.png" alt="Landry Shamet">
       </div>
@@ -555,13 +757,12 @@
       </select>
       <button class="ku-submit" type="submit">Submit</button>
       <div class="ku-confirm">Thanks! Your vote for Landry Shamet was recorded.</div>
-    </form> 
+    </form>
 
- <!-- Mohamed Diawara (F) -->
+    <!-- Mohamed Diawara (F) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
-      method="POST"
-      target="ku_hidden_submit">
+      method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
         <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1642885.png" alt="Mohamed Diawara">
       </div>
@@ -578,187 +779,188 @@
       </select>
       <button class="ku-submit" type="submit">Submit</button>
       <div class="ku-confirm">Thanks! Your vote for Mohamed Diawara was recorded.</div>
-    </form> 
+    </form>
 
-  </div>
+  </div><!-- end ku-grid -->
 
-  <footer class="ku-footnote">
-    © KnicksUniverse.com — voting is anonymous. Results are aggregated in Google Sheets connected to your Google Form.
-  </footer>
+</div><!-- end page-wrap -->
 
-  <script>
-    // Inline confirmation + debounce
-    (function(){
-      document.querySelectorAll('.ku-card').forEach(function(form){
-        var select = form.querySelector('.ku-select');
-        var button = form.querySelector('.ku-submit');
-        var confirm = form.querySelector('.ku-confirm');
-        form.addEventListener('submit', function(){
-          if (button) button.disabled = true;
-          if (confirm) confirm.classList.add('show');
-          setTimeout(function(){
-            if (button) button.disabled = false;
-            if (select) select.selectedIndex = 0;
-          }, 1500);
-          if (window.loadKnicksFromSheetWide) {
-            setTimeout(window.loadKnicksFromSheetWide, 2000);
-          }
-        });
-      });
-    })();
+<footer class="ku-footnote">
+  © KnicksUniverse.com — voting is anonymous. Results are aggregated in Google Sheets connected to your Google Form.
+</footer>
 
-    // Live averages from your NEW sheet
-    const SHEET_ID = "1WlJ5NGR5RwYru15zBH28MgAvxb9VkvZ01YLWHLj-6do";
-    const SHEET_GID = "946748552";
-    const SHEET_URL =
-      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
-
-    const SHEET_HEADER_TO_CARD = {
-      "Jalen Brunson (PG)": "Jalen Brunson (PG)",
-      "Karl-Anthony Towns (C/PF)": "Karl-Anthony Towns (C/PF)",
-      "OG Anunoby (SF)": "OG Anunoby (SF)",
-      "Mikal Bridges (SG/SF)": "Mikal Bridges (SG/SF)",
-      "Josh Hart (SG/SF)": "Josh Hart (SG/SF)",
-      "Mitchell Robinson (C)": "Mitchell Robinson (C)",
-      "Miles \"Deuce\" McBride (PG/SG)": "Miles \"Deuce\" McBride (PG/SG)",
-      "Jordan Clarkson (PG/SG)": "Jordan Clarkson (PG/SG)",
-      "Jose Alvarado (PG)": "Jose Alvarado (PG)",
-      "Jeremy Sochan (F)": "Jeremy Sochan (F)",
-      "Tyler Kolek (PG)": "Tyler Kolek (PG)",
-      "Pacôme Dadiet (SF)": "Pacôme Dadiet (SF)",
-      "Ariel Hukporti (C)": "Ariel Hukporti (C)",
-      "Landry Shamet (G)": "Landry Shamet (G)",
-      "Mohamed Diawara (F)": "Mohamed Diawara (F)",
-      "Mohamed Diawara": "Mohamed Diawara (F)"
-    };
-
-    const IGNORE_HEADERS = new Set(["Timestamp"]);
-
-    function findCardByName(name) {
-      const cards = document.querySelectorAll(".ku-card");
-      for (const card of cards) {
-        const nameEl = card.querySelector(".ku-name");
-        if (!nameEl) continue;
-        if (nameEl.textContent.trim() === name) return card;
-      }
-      return null;
-    }
-
-    function setAvgOnCard(name, avg) {
-      const card = findCardByName(name);
-      if (!card) return;
-      const avgEl = card.querySelector(".ku-avg");
-      if (!avgEl) return;
-      card.dataset.avg = String(avg); 
-      avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
-    }
-
-    function setVotesOnCard(name, votes) {
-      const card = findCardByName(name);
-      if (!card) return;
-      const votesEl = card.querySelector(".ku-votes");
-      if (!votesEl) return;
-      card.dataset.votes = String(votes);
-      votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
-    }    
-    
-    function normalizeHeader(raw) {
-      if (!raw) return "";
-      let h = String(raw).trim();
-      h = h.replace(/\s+/g, " ");
-      return h;
-    }
-
-    let currentSortMode = "rating";
-
-    function getNameFromCard(card){
-      const nameEl = card.querySelector(".ku-name");
-      return nameEl ? nameEl.textContent.trim() : "";
-    }
-
-    function sortCards(mode){
-      currentSortMode = mode;
-      const grid = document.getElementById("ku-grid");
-      if (!grid) return;
-      const cards = Array.from(grid.querySelectorAll(".ku-card"));
-      cards.sort((a, b) => {
-        const aAvg = parseFloat(a.dataset.avg || "0");
-        const bAvg = parseFloat(b.dataset.avg || "0");
-        const aVotes = parseInt(a.dataset.votes || "0", 10);
-        const bVotes = parseInt(b.dataset.votes || "0", 10);
-        if (mode === "votes") {
-          if (bVotes !== aVotes) return bVotes - aVotes;
-          return bAvg - aAvg;
+<script>
+  // ── Inline confirmation + debounce (unchanged) ──
+  (function(){
+    document.querySelectorAll('.ku-card').forEach(function(form){
+      var select = form.querySelector('.ku-select');
+      var button = form.querySelector('.ku-submit');
+      var confirm = form.querySelector('.ku-confirm');
+      form.addEventListener('submit', function(){
+        if (button) button.disabled = true;
+        if (confirm) confirm.classList.add('show');
+        setTimeout(function(){
+          if (button) button.disabled = false;
+          if (select) select.selectedIndex = 0;
+        }, 1500);
+        if (window.loadKnicksFromSheetWide) {
+          setTimeout(window.loadKnicksFromSheetWide, 2000);
         }
-        if (mode === "az") {
-          return getNameFromCard(a).localeCompare(getNameFromCard(b));
-        }
-        if (bAvg !== aAvg) return bAvg - aAvg;
-        if (bVotes !== aVotes) return bVotes - aVotes;
-        return getNameFromCard(a).localeCompare(getNameFromCard(b));
       });
-      cards.forEach(card => grid.appendChild(card));
-    }
-
-    function initSortButtons(){
-      const btns = document.querySelectorAll(".ku-sortbtn");
-      btns.forEach(btn => {
-        btn.addEventListener("click", () => {
-          btns.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          sortCards(btn.dataset.sort);
-        });
-      });
-    }   
-
-    async function loadKnicksFromSheetWide() {
-      try {
-        const resp = await fetch(SHEET_URL);
-        const text = await resp.text();
-        const start = text.indexOf("{");
-        const end = text.lastIndexOf("}");
-        if (start === -1 || end === -1) throw new Error("Unexpected sheet response format");
-        const jsonStr = text.substring(start, end + 1);
-        const data = JSON.parse(jsonStr);
-        const cols = data.table.cols;
-        const rows = data.table.rows;
-        const sums = {};
-        const counts = {};
-        rows.forEach(row => {
-          const cells = row.c || [];
-          for (let colIndex = 0; colIndex < cols.length; colIndex++) {
-            const colMeta = cols[colIndex];
-            if (!colMeta) continue;
-            let header = normalizeHeader(colMeta.label);
-            if (!header || IGNORE_HEADERS.has(header)) continue;
-            const cardName = SHEET_HEADER_TO_CARD[header];
-            if (!cardName) continue;
-            const cell = cells[colIndex];
-            if (!cell || cell.v == null) continue;
-            const rawVal = String(cell.v);
-            const numVal = Number(rawVal.replace(/[^\d.]/g, ""));
-            if (isNaN(numVal)) continue;
-            if (!sums[cardName]) { sums[cardName] = 0; counts[cardName] = 0; }
-            sums[cardName] += numVal;
-            counts[cardName] += 1;
-          }
-        });
-        Object.keys(sums).forEach(cardName => {
-          const avg = sums[cardName] / counts[cardName];
-          setAvgOnCard(cardName, avg);
-          setVotesOnCard(cardName, counts[cardName]);
-        });
-        sortCards(currentSortMode);
-      } catch (err) {
-        console.error("KnicksUniverse: error loading sheet averages", err);
-      }
-    }
-
-    window.loadKnicksFromSheetWide = loadKnicksFromSheetWide;
-    document.addEventListener("DOMContentLoaded", () => {
-      initSortButtons();
-      loadKnicksFromSheetWide();
     });
-  </script>
+  })();
+
+  // ── Live averages from sheet (unchanged) ──
+  const SHEET_ID = "1WlJ5NGR5RwYru15zBH28MgAvxb9VkvZ01YLWHLj-6do";
+  const SHEET_GID = "946748552";
+  const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&tqx=out:json`;
+
+  const SHEET_HEADER_TO_CARD = {
+    "Jalen Brunson (PG)": "Jalen Brunson (PG)",
+    "Karl-Anthony Towns (C/PF)": "Karl-Anthony Towns (C/PF)",
+    "OG Anunoby (SF)": "OG Anunoby (SF)",
+    "Mikal Bridges (SG/SF)": "Mikal Bridges (SG/SF)",
+    "Josh Hart (SG/SF)": "Josh Hart (SG/SF)",
+    "Mitchell Robinson (C)": "Mitchell Robinson (C)",
+    "Miles \"Deuce\" McBride (PG/SG)": "Miles \"Deuce\" McBride (PG/SG)",
+    "Jordan Clarkson (PG/SG)": "Jordan Clarkson (PG/SG)",
+    "Jose Alvarado (PG)": "Jose Alvarado (PG)",
+    "Jeremy Sochan (F)": "Jeremy Sochan (F)",
+    "Tyler Kolek (PG)": "Tyler Kolek (PG)",
+    "Pacôme Dadiet (SF)": "Pacôme Dadiet (SF)",
+    "Ariel Hukporti (C)": "Ariel Hukporti (C)",
+    "Landry Shamet (G)": "Landry Shamet (G)",
+    "Mohamed Diawara (F)": "Mohamed Diawara (F)",
+    "Mohamed Diawara": "Mohamed Diawara (F)"
+  };
+
+  const IGNORE_HEADERS = new Set(["Timestamp"]);
+
+  function findCardByName(name) {
+    const cards = document.querySelectorAll(".ku-card");
+    for (const card of cards) {
+      const nameEl = card.querySelector(".ku-name");
+      if (!nameEl) continue;
+      if (nameEl.textContent.trim() === name) return card;
+    }
+    return null;
+  }
+
+  function setAvgOnCard(name, avg) {
+    const card = findCardByName(name);
+    if (!card) return;
+    const avgEl = card.querySelector(".ku-avg");
+    if (!avgEl) return;
+    card.dataset.avg = String(avg);
+    avgEl.innerHTML = `Avg Fan Score: <strong>${avg.toFixed(1)}</strong>`;
+  }
+
+  function setVotesOnCard(name, votes) {
+    const card = findCardByName(name);
+    if (!card) return;
+    const votesEl = card.querySelector(".ku-votes");
+    if (!votesEl) return;
+    card.dataset.votes = String(votes);
+    votesEl.innerHTML = `Votes: <strong>${votes}</strong>`;
+  }
+
+  function normalizeHeader(raw) {
+    if (!raw) return "";
+    let h = String(raw).trim();
+    h = h.replace(/\s+/g, " ");
+    return h;
+  }
+
+  let currentSortMode = "rating";
+
+  function getNameFromCard(card){
+    const nameEl = card.querySelector(".ku-name");
+    return nameEl ? nameEl.textContent.trim() : "";
+  }
+
+  function sortCards(mode){
+    currentSortMode = mode;
+    const grid = document.getElementById("ku-grid");
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll(".ku-card"));
+    cards.sort((a, b) => {
+      const aAvg = parseFloat(a.dataset.avg || "0");
+      const bAvg = parseFloat(b.dataset.avg || "0");
+      const aVotes = parseInt(a.dataset.votes || "0", 10);
+      const bVotes = parseInt(b.dataset.votes || "0", 10);
+      if (mode === "votes") {
+        if (bVotes !== aVotes) return bVotes - aVotes;
+        return bAvg - aAvg;
+      }
+      if (mode === "az") {
+        return getNameFromCard(a).localeCompare(getNameFromCard(b));
+      }
+      if (bAvg !== aAvg) return bAvg - aAvg;
+      if (bVotes !== aVotes) return bVotes - aVotes;
+      return getNameFromCard(a).localeCompare(getNameFromCard(b));
+    });
+    cards.forEach(card => grid.appendChild(card));
+  }
+
+  function initSortButtons(){
+    const btns = document.querySelectorAll(".ku-sortbtn");
+    btns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        btns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        sortCards(btn.dataset.sort);
+      });
+    });
+  }
+
+  async function loadKnicksFromSheetWide() {
+    try {
+      const resp = await fetch(SHEET_URL);
+      const text = await resp.text();
+      const start = text.indexOf("{");
+      const end = text.lastIndexOf("}");
+      if (start === -1 || end === -1) throw new Error("Unexpected sheet response format");
+      const jsonStr = text.substring(start, end + 1);
+      const data = JSON.parse(jsonStr);
+      const cols = data.table.cols;
+      const rows = data.table.rows;
+      const sums = {};
+      const counts = {};
+      rows.forEach(row => {
+        const cells = row.c || [];
+        for (let colIndex = 0; colIndex < cols.length; colIndex++) {
+          const colMeta = cols[colIndex];
+          if (!colMeta) continue;
+          let header = normalizeHeader(colMeta.label);
+          if (!header || IGNORE_HEADERS.has(header)) continue;
+          const cardName = SHEET_HEADER_TO_CARD[header];
+          if (!cardName) continue;
+          const cell = cells[colIndex];
+          if (!cell || cell.v == null) continue;
+          const rawVal = String(cell.v);
+          const numVal = Number(rawVal.replace(/[^\d.]/g, ""));
+          if (isNaN(numVal)) continue;
+          if (!sums[cardName]) { sums[cardName] = 0; counts[cardName] = 0; }
+          sums[cardName] += numVal;
+          counts[cardName] += 1;
+        }
+      });
+      Object.keys(sums).forEach(cardName => {
+        const avg = sums[cardName] / counts[cardName];
+        setAvgOnCard(cardName, avg);
+        setVotesOnCard(cardName, counts[cardName]);
+      });
+      sortCards(currentSortMode);
+    } catch (err) {
+      console.error("KnicksUniverse: error loading sheet averages", err);
+    }
+  }
+
+  window.loadKnicksFromSheetWide = loadKnicksFromSheetWide;
+  document.addEventListener("DOMContentLoaded", () => {
+    initSortButtons();
+    loadKnicksFromSheetWide();
+  });
+</script>
 </body>
 </html>
