@@ -66,7 +66,7 @@
       height: 60px;
       background: rgba(10,10,10,0.92);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 2px solid var(--knicks-blue);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -141,8 +141,8 @@
       content: '';
       width: 40px;
       height: 1px;
-      background: var(--orange);
-      opacity: 0.5;
+      background: var(--knicks-blue);
+      opacity: 0.9;
     }
     h1 {
       font-family: 'Bebas Neue', sans-serif;
@@ -194,8 +194,8 @@
       transition: all 0.2s;
     }
     .ku-sortbtn:hover {
-      border-color: var(--orange);
-      color: var(--orange);
+      border-color: var(--knicks-blue);
+      color: var(--blue-light);
     }
     .ku-sortbtn.active {
       border-color: var(--orange);
@@ -223,7 +223,7 @@
     /* ── CARD ── */
     .ku-card {
       background: var(--dark);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid rgba(0,107,182,0.35);
       border-top: 3px solid var(--orange);
       border-radius: var(--radius);
       padding: 14px;
@@ -237,13 +237,13 @@
     }
     .ku-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(245,132,38,0.12);
-      border-color: rgba(245,132,38,0.4);
+      box-shadow: 0 12px 40px rgba(0,107,182,0.35);
+      border-color: var(--knicks-blue);
     }
 
     /* ── HEADSHOT ── */
     .ku-imgwrap {
-      background: linear-gradient(180deg, #0a0820 0%, #1a1a35 100%);
+      background: linear-gradient(180deg, #006BB6 0%, #003a63 100%);
       border-radius: 8px;
       padding: 4px;
       margin-bottom: 10px;
@@ -280,7 +280,7 @@
     }
     .ku-votes strong { color: var(--white); }
     .ku-label {
-      color: var(--orange);
+      color: var(--blue-light);
       display: inline-block;
       margin-bottom: 6px;
       font-weight: 700;
@@ -305,7 +305,7 @@
     }
     .ku-select:focus {
       outline: none;
-      border-color: var(--orange);
+      border-color: var(--knicks-blue);
     }
     .ku-select option {
       background: #0e0e20;
@@ -561,18 +561,18 @@
       <div class="ku-confirm">Thanks! Your vote for Josh Hart was recorded.</div>
     </form>
 
-    <!-- Mitchell Robinson (C) -->
+    <!-- Andre Drummond (C) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
       method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
-        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1629011.png" alt="Mitchell Robinson">
+        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/203083.png" alt="Andre Drummond">
       </div>
-      <div class="ku-name">Mitchell Robinson (C)</div>
+      <div class="ku-name">Andre Drummond (C)</div>
       <p class="ku-avg">Avg Fan Score: <strong>—</strong></p>
       <p class="ku-votes">Votes: <strong>—</strong></p>
-      <label class="ku-label" for="robinson">Your Rating:</label>
-      <select class="ku-select" name="entry.378123156" id="robinson" required>
+      <label class="ku-label" for="drummond">Your Rating:</label>
+      <select class="ku-select" name="entry.378123156" id="drummond" required>
         <option value="" disabled selected>Select your rating</option>
         <option>10 – GOAT 🐐</option><option>9 – All-Star ⭐️</option><option>8 – Starter 🔥</option>
         <option>7 – Solid 💪</option><option>6 – Rotation 🔄</option><option>5 – Average 🟰</option>
@@ -580,7 +580,7 @@
         <option>1 – Trash 🗑️</option>
       </select>
       <button class="ku-submit" type="submit">Submit</button>
-      <div class="ku-confirm">Thanks! Your vote for Mitchell Robinson was recorded.</div>
+      <div class="ku-confirm">Thanks! Your vote for Andre Drummond was recorded.</div>
     </form>
 
     <!-- Miles "Deuce" McBride (PG/SG) -->
@@ -649,18 +649,18 @@
       <div class="ku-confirm">Thanks! Your vote for Jose Alvarado was recorded.</div>
     </form>
 
-    <!-- Jeremy Sochan (F) -->
+    <!-- James Wiseman (C) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
       method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
-        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1631110.png" alt="Jeremy Sochan">
+        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630164.png" alt="James Wiseman">
       </div>
-      <div class="ku-name">Jeremy Sochan (F)</div>
+      <div class="ku-name">James Wiseman (C)</div>
       <p class="ku-avg">Avg Fan Score: <strong>—</strong></p>
       <p class="ku-votes">Votes: <strong>—</strong></p>
-      <label class="ku-label" for="sochan">Your Rating:</label>
-      <select class="ku-select" name="entry.1338829398" id="sochan" required>
+      <label class="ku-label" for="wiseman">Your Rating:</label>
+      <select class="ku-select" name="entry.1338829398" id="wiseman" required>
         <option value="" disabled selected>Select your rating</option>
         <option>10 – GOAT 🐐</option><option>9 – All-Star ⭐️</option><option>8 – Starter 🔥</option>
         <option>7 – Solid 💪</option><option>6 – Rotation 🔄</option><option>5 – Average 🟰</option>
@@ -668,7 +668,7 @@
         <option>1 – Trash 🗑️</option>
       </select>
       <button class="ku-submit" type="submit">Submit</button>
-      <div class="ku-confirm">Thanks! Your vote for Jeremy Sochan was recorded.</div>
+      <div class="ku-confirm">Thanks! Your vote for James Wiseman was recorded.</div>
     </form>
 
     <!-- Tyler Kolek (PG) -->
@@ -715,18 +715,18 @@
       <div class="ku-confirm">Thanks! Your vote for Pacôme Dadiet was recorded.</div>
     </form>
 
-    <!-- Ariel Hukporti (C) -->
+    <!-- Tyler Nickel (F) -->
     <form class="ku-card"
       action="https://docs.google.com/forms/d/1s7d5ux53qxVajabn3mkP4sczYfxNjaTLuZCtaXAoBwU/formResponse"
       method="POST" target="ku_hidden_submit">
       <div class="ku-imgwrap">
-        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1630574.png" alt="Ariel Hukporti">
+        <img class="ku-img" src="https://cdn.nba.com/headshots/nba/latest/1040x760/1643589.png" alt="Tyler Nickel">
       </div>
-      <div class="ku-name">Ariel Hukporti (C)</div>
+      <div class="ku-name">Tyler Nickel (F)</div>
       <p class="ku-avg">Avg Fan Score: <strong>—</strong></p>
       <p class="ku-votes">Votes: <strong>—</strong></p>
-      <label class="ku-label" for="hukporti">Your Rating:</label>
-      <select class="ku-select" name="entry.1880373573" id="hukporti" required>
+      <label class="ku-label" for="nickel">Your Rating:</label>
+      <select class="ku-select" name="entry.1880373573" id="nickel" required>
         <option value="" disabled selected>Select your rating</option>
         <option>10 – GOAT 🐐</option><option>9 – All-Star ⭐️</option><option>8 – Starter 🔥</option>
         <option>7 – Solid 💪</option><option>6 – Rotation 🔄</option><option>5 – Average 🟰</option>
@@ -734,7 +734,7 @@
         <option>1 – Trash 🗑️</option>
       </select>
       <button class="ku-submit" type="submit">Submit</button>
-      <div class="ku-confirm">Thanks! Your vote for Ariel Hukporti was recorded.</div>
+      <div class="ku-confirm">Thanks! Your vote for Tyler Nickel was recorded.</div>
     </form>
 
     <!-- Landry Shamet (G) -->
@@ -821,14 +821,17 @@
     "OG Anunoby (SF)": "OG Anunoby (SF)",
     "Mikal Bridges (SG/SF)": "Mikal Bridges (SG/SF)",
     "Josh Hart (SG/SF)": "Josh Hart (SG/SF)",
-    "Mitchell Robinson (C)": "Mitchell Robinson (C)",
+    "Andre Drummond (C)": "Andre Drummond (C)",
+    "Mitchell Robinson (C)": "Andre Drummond (C)",
     "Miles \"Deuce\" McBride (PG/SG)": "Miles \"Deuce\" McBride (PG/SG)",
     "Jordan Clarkson (PG/SG)": "Jordan Clarkson (PG/SG)",
     "Jose Alvarado (PG)": "Jose Alvarado (PG)",
-    "Jeremy Sochan (F)": "Jeremy Sochan (F)",
+    "James Wiseman (C)": "James Wiseman (C)",
+    "Jeremy Sochan (F)": "James Wiseman (C)",
     "Tyler Kolek (PG)": "Tyler Kolek (PG)",
     "Pacôme Dadiet (SF)": "Pacôme Dadiet (SF)",
-    "Ariel Hukporti (C)": "Ariel Hukporti (C)",
+    "Tyler Nickel (F)": "Tyler Nickel (F)",
+    "Ariel Hukporti (C)": "Tyler Nickel (F)",
     "Landry Shamet (G)": "Landry Shamet (G)",
     "Mohamed Diawara (F)": "Mohamed Diawara (F)",
     "Mohamed Diawara": "Mohamed Diawara (F)"
